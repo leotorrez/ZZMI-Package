@@ -16,6 +16,7 @@ struct stored
 RWStructuredBuffer<stored> u0 : register(u0);
 Buffer<float4> cb0 : register(t0);
 
+
 struct vb0_semantic
 {
     float3 position;
@@ -45,7 +46,8 @@ Texture1D<float4> IniParams : register(t120);
 
 
 #define first_vertex IniParams[1].x
-#define total IniParams[1].y
+#define value IniParams[1].y
+#define total IniParams[1].z
 
 void swap(inout int a, inout int b)
 {
@@ -59,69 +61,69 @@ void swap(inout int a, inout int b)
 void main()
 {
 	stored data = u0[0];
-	accumulator acc = data.hp_acc;
-	if (acc.counter < 3 && cb0[12].x > 0.39 && cb0[12].x < 0.61)
+	accumulator acc = data.id_acc;
+	if (acc.counter < 3)
 	{
 		float positionX = vb0[first_vertex].position.x;
-		int value = floor((cb0[11].y + cb0[11].z) * 100);
-		
-		int3 hp = data.hp;
-		int3 pos = data.hp_pos;
-		
+
+		int3 id = data.id;
+		int3 pos = data.id_pos;
+
 		switch (acc.counter)
 		{
 			case 0:
-				hp.x = value;
+				id.x = value;
 				pos.x = positionX;
 				break;
 			case 1:
-				hp.y = value;
+				id.y = value;
 				pos.y = positionX;
 				if (positionX < pos.x)
 				{
-					swap(hp.x, hp.y);
+					swap(id.x, id.y);
 					swap(pos.x, pos.y);
 				}
 				break;
 			case 2:
-				hp.z = value;
+				id.z = value;
 				pos.z = positionX;
 				if (positionX < pos.y)
 				{
-					swap(hp.y, hp.z);
+					swap(id.y, id.z);
 					swap(pos.y, pos.z);
-					
+
 					if (positionX < pos.x)
 					{
-						swap(hp.x, hp.y);
+						swap(id.x, id.y);
 						swap(pos.x, pos.y);
 					}
 				}
 				break;
 		}
 		
-		data.hp = hp;
-		data.hp_pos = pos;
+		data.id = id;
+		data.id_pos = pos;
 
 		acc.counter++;
-
+		
 		if (acc.counter == total)
 		{
 			switch (total)
 			{
 				case 1:
-					acc.summ = (hp.x * 10201) + 10200;
+					acc.summ = (id.x * 2601) + 0;
 					break;
 				case 2:
-					acc.summ = (hp.x * 10201) + (hp.y * 101) + 100;
+					acc.summ = (id.x * 2601) + (id.y * 51) + 0;
 					break;
 				case 3:
-					acc.summ = (hp.x * 10201) + (hp.y * 101) + hp.z;
+					acc.summ = (id.x * 2601) + (id.y * 51) + id.z;
 					break;
 			}
 		}
 
-		data.hp_acc = acc;
+		data.id_acc = acc;
+		
 		u0[0] = data;
 	}
 }
