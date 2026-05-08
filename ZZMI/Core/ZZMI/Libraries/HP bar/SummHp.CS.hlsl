@@ -14,7 +14,7 @@ struct stored
 	accumulator id_acc;
 };
 RWStructuredBuffer<stored> u0 : register(u0);
-Buffer<float4> cb0 : register(t0);
+Buffer<float4> cb : register(t0);
 
 struct vb0_semantic
 {
@@ -60,10 +60,10 @@ void main()
 {
 	stored data = u0[0];
 	accumulator acc = data.hp_acc;
-	if (acc.counter < 3 && cb0[12].x > 0.39 && cb0[12].x < 0.61)
+	if (acc.counter < 3 && cb[12].x > 0.39 && cb[12].x < 0.61)
 	{
 		float positionX = vb0[first_vertex].position.x;
-		int value = floor((cb0[11].y + cb0[11].z) * 100);
+		int value = floor((cb[11].y + cb[11].z) * 100);
 		
 		int3 hp = data.hp;
 		int3 pos = data.hp_pos;
