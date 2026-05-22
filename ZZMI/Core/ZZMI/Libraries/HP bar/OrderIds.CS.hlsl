@@ -5,40 +5,16 @@ struct accumulator
 };
 struct stored
 {
-    float3 hp;
+	float3 hp;
 	float3 hp_pos;
 	accumulator hp_acc;
-	
-    float3 id;
+
+	float3 id;
 	float3 id_pos;
 	accumulator id_acc;
 };
 RWStructuredBuffer<stored> u0 : register(u0);
-Buffer<float4> cb0 : register(t0);
-
-
-struct vb0_semantic
-{
-    float3 position;
-	float3 normal;
-	
-    half2 tangent;
-    half2 color;
-	
-    float2 texcoord;
-    float2 texcoord1;
-    float2 texcoord2;
-    float2 texcoord3;
-	
-    half2 texcoord4;
-    half2 texcoord5;
-    half2 texcoord6;
-    half2 texcoord7;
-
-    half2 blend_weights;
-    half2 blend_indices;
-};
-StructuredBuffer<vb0_semantic> vb0 : register(t1);
+Buffer<float> vb0 : register(t0);
 
 
 #define cmp -
@@ -46,8 +22,8 @@ Texture1D<float4> IniParams : register(t120);
 
 
 #define first_vertex IniParams[1].x
-#define value IniParams[1].y
-#define total IniParams[1].z
+#define total IniParams[1].y
+#define value IniParams[1].z
 
 void swap(inout int a, inout int b)
 {
@@ -64,9 +40,15 @@ void main()
 	accumulator acc = data.id_acc;
 	if (acc.counter < 3)
 	{
-		float positionX = vb0[first_vertex].position.x;
+		uint index = first_vertex;
+		if (vb0[5] == -1) {
+			index = index * 76 / 4;
+		} else if (vb0[1] == 0) {
+			index = index * 20 / 4;
+		}
+		float positionX = vb0[index];
 
-		int3 id = data.id;
+		uint3 id = data.id;
 		int3 pos = data.id_pos;
 
 		switch (acc.counter)
@@ -100,30 +82,29 @@ void main()
 				}
 				break;
 		}
-		
+
 		data.id = id;
 		data.id_pos = pos;
 
 		acc.counter++;
-		
+
 		if (acc.counter == total)
 		{
 			switch (total)
 			{
 				case 1:
-					acc.summ = (id.x * 2601) + 0;
+					acc.summ = (id.x * 10201) + 0;
 					break;
 				case 2:
-					acc.summ = (id.x * 2601) + (id.y * 51) + 0;
+					acc.summ = (id.x * 10201) + (id.y * 101) + 0;
 					break;
 				case 3:
-					acc.summ = (id.x * 2601) + (id.y * 51) + id.z;
+					acc.summ = (id.x * 10201) + (id.y * 101) + id.z;
 					break;
 			}
 		}
 
 		data.id_acc = acc;
-		
 		u0[0] = data;
 	}
 }

@@ -5,40 +5,21 @@ struct accumulator
 };
 struct stored
 {
-    float3 hp;
+	float3 hp;
 	float3 hp_pos;
 	accumulator hp_acc;
-	
-    float3 id;
+
+	float3 id;
 	float3 id_pos;
 	accumulator id_acc;
 };
 RWStructuredBuffer<stored> u0 : register(u0);
-Buffer<float4> cb : register(t0);
 
-struct vb0_semantic
+Buffer<float> vb0 : register(t0);
+cbuffer cb1 : register(b1)
 {
-    float3 position;
-	float3 normal;
-	
-    half2 tangent;
-    half2 color;
-	
-    float2 texcoord;
-    float2 texcoord1;
-    float2 texcoord2;
-    float2 texcoord3;
-	
-    half2 texcoord4;
-    half2 texcoord5;
-    half2 texcoord6;
-    half2 texcoord7;
-
-    half2 blend_weights;
-    half2 blend_indices;
-};
-StructuredBuffer<vb0_semantic> vb0 : register(t1);
-
+	float4 cb1[24];
+}
 
 #define cmp -
 Texture1D<float4> IniParams : register(t120);
@@ -47,7 +28,7 @@ Texture1D<float4> IniParams : register(t120);
 #define first_vertex IniParams[1].x
 #define total IniParams[1].y
 
-void swap(inout int a, inout int b)
+void swap(inout uint a, inout uint b)
 {
 	if (a == b) return;
 	a ^= b;
@@ -60,14 +41,23 @@ void main()
 {
 	stored data = u0[0];
 	accumulator acc = data.hp_acc;
-	if (acc.counter < 3 && cb[12].x > 0.39 && cb[12].x < 0.61)
+	float cb_12_x = cb1[12].x;
+
+	if (acc.counter < 3 && cb_12_x > 0.39 && cb_12_x < 0.61)
 	{
-		float positionX = vb0[first_vertex].position.x;
-		int value = floor((cb[11].y + cb[11].z) * 100);
-		
-		int3 hp = data.hp;
+		uint index = first_vertex;
+		if (vb0[5] == -1) {
+			index = index * 76 / 4;
+		} else if (vb0[1] == 0) {
+			index = index * 20 / 4;
+		}
+		int positionX = vb0[index];
+		float2 cb_11 = cb1[11].yz;
+		uint value = floor((cb_11.x + cb_11.y) * 100);
+
+		uint3 hp = data.hp;
 		int3 pos = data.hp_pos;
-		
+
 		switch (acc.counter)
 		{
 			case 0:
@@ -90,7 +80,7 @@ void main()
 				{
 					swap(hp.y, hp.z);
 					swap(pos.y, pos.z);
-					
+
 					if (positionX < pos.x)
 					{
 						swap(hp.x, hp.y);
@@ -99,7 +89,7 @@ void main()
 				}
 				break;
 		}
-		
+
 		data.hp = hp;
 		data.hp_pos = pos;
 
