@@ -5,13 +5,9 @@ struct accumulator
 };
 struct stored
 {
-	uint3 hp;
-	int3  hp_pos;
-	accumulator hp_acc;
-
-	uint3 id;
-	int3  id_pos;
-	accumulator id_acc;
+	uint3 value;
+	int3  pos;
+	accumulator acc;
 };
 RWStructuredBuffer<stored> u0 : register(u0);
 Buffer<float> vb0 : register(t0);
@@ -27,9 +23,9 @@ Texture1D<float4> IniParams : register(t120);
 [numthreads(1, 1, 1)]
 void main()
 {
-	stored data = u0[0];
+	stored data = u0[1];
 
-	uint counter = data.id_acc.counter;
+	uint counter = data.acc.counter;
 	if (counter >= 3)
 		return;
 
@@ -39,8 +35,8 @@ void main()
 	int positionX = vb0[index];
 	uint value = (uint)value_raw;
 
-	uint3 id = data.id;
-	int3  pos = data.id_pos;
+	uint3 id = data.value;
+	int3  pos = data.pos;
 
 	if (counter == 0)
 	{
@@ -91,11 +87,11 @@ void main()
 		}
 	}
 
-	data.id = id;
-	data.id_pos = pos;
+	data.value = id;
+	data.pos = pos;
 
 	counter++;
-	data.id_acc.counter = counter;
+	data.acc.counter = counter;
 
 	if (counter == total)
 	{
@@ -107,8 +103,8 @@ void main()
 		if (total > 2)
 			packed |= id.z;
 
-		data.id_acc.summ = packed;
+		data.acc.summ = packed;
 	}
 
-	u0[0] = data;
+	u0[1] = data;
 }

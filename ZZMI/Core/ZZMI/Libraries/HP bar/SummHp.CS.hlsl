@@ -5,13 +5,9 @@ struct accumulator
 };
 struct stored
 {
-	uint3 hp;
-	int3 hp_pos;
-	accumulator hp_acc;
-
-	uint3 id;
-	int3 id_pos;
-	accumulator id_acc;
+	uint3 value;
+	int3  pos;
+	accumulator acc;
 };
 RWStructuredBuffer<stored> u0 : register(u0);
 
@@ -39,7 +35,7 @@ void main()
 
 	stored data = u0[0];
 
-	uint counter = data.hp_acc.counter;
+	uint counter = data.acc.counter;
 	if (counter >= 3)
 		return;
 
@@ -49,8 +45,8 @@ void main()
 	int positionX = vb0[index];
 	uint value = (cb1[11].z + cb1[11].w) * 100.0 + 0.5;
 
-	uint3 hp = data.hp;
-	int3 pos = data.hp_pos;
+	uint3 hp = data.value;
+	int3 pos = data.pos;
 
 	if (counter == 0)
 	{
@@ -101,11 +97,11 @@ void main()
 		}
 	}
 
-	data.hp = hp;
-	data.hp_pos = pos;
+	data.value = hp;
+	data.pos = pos;
 
 	counter++;
-	data.hp_acc.counter = counter;
+	data.acc.counter = counter;
 
 	if (counter == total)
 	{
@@ -121,7 +117,7 @@ void main()
 		else if (total == 2)
 			packed |= 100u;
 
-		data.hp_acc.summ = packed;
+		data.acc.summ = packed;
 	}
 
 	u0[0] = data;
